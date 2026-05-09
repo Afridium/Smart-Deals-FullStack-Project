@@ -79,6 +79,12 @@ async function run() {
       const result = await cursor.toArray();
       res.send(result);
     })
+    app.get('/bids/:id', async (req, res)=>{
+      const stringID = req.params.id;
+      const query = {_id: stringID}
+      const result = await bidsCollection.findOne(query);
+      res.send(result);
+    })
     app.post('/bids', async(req, res)=>{
       const bids = req.body;
       const result = await bidsCollection.insertOne(bids);
