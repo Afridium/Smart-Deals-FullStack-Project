@@ -24,6 +24,7 @@ async function run() {
 
     const db = client.db('smart_deals_db');
     const productCollection = db.collection('products');
+    const bidsCollection = db.collection('bids');
 
     app.get('/products', async (req, res) => {
       const email = req.query.mail;
@@ -52,7 +53,6 @@ async function run() {
     app.delete('/products/:id', async (req, res) => {
       const stringId = req.params.id;
       const query = { _id: new ObjectId(stringId) };
-      console.log(query);
       const result = await productCollection.deleteOne(query);
       res.send(result);
     })
@@ -68,6 +68,38 @@ async function run() {
       res.send(result);
     })
 
+    //bids related API
+    app.get('/bids', async (req, res)=>{
+      const email = req.query.mail;
+      const query = {};
+      if(email){
+        query.buyer_email = email;
+      }
+      const cursor = bidsCollection.find(query);
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+    app.post('/bids', async(req, res)=>{
+      const bids = req.body;
+      const result = await bidsCollection.insertOne(bids);
+      res.send(result);
+    })
+    app.delete('/bids/:id', async (req, res)=>{
+      const stringID = req.params.id;
+      const query = {_id: stringID};
+      const result = await bidsCollection.deleteOne(query);
+      res.send(result);
+    })
+    app.patch('/bids/:id', async(req, res)=>{
+      const stringID = req.params.id;
+      const query = {_id: stringID};
+      const doc = req.body;
+      const updateDoc = {
+        $set: doc
+      }
+      const result = await bidsCollection.updateOne(query, updateDoc);
+      res.send(result);
+    })
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
