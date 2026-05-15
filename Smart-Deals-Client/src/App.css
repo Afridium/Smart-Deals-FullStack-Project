@@ -1,2 +1,14 @@
 @import "tailwindcss";
-@plugin "daisyui";
+@plugin "daisyui"{
+    themes: light --default
+};
+
+.title-gradient-t2b{
+    background: linear-gradient(180deg, #632ee3 0%, #9f62f2 100%);
+    background-clip: text;
+    color: transparent;
+}
+
+.general-gradient-l2r{
+    background: linear-gradient(90deg, #632ee3 0%, #9f62f2 100%);
+}
