@@ -47,32 +47,40 @@ const Register = () => {
     }
 
     //creating user with google
-    const handleGoogleSignIn = () => {
+        const handleGoogleSignIn = () => {
         loginWithGoogle()
-        .then(result => {
-            console.log(result);
-            const user = result.user;
-            const userInfo = {
-                userName: user.displayName,
-                userEmail: user.email,
-                dateCreated: new Date()
-            }
-            fetch('http://localhost:3000/users', {
-                method: 'POST',
-                headers: {
-                    'content-type': 'application/json',
-                },
-                body: JSON.stringify(userInfo)
-            }).then(res => res.json()).then(data => console.log("Data after adding to DB: ", data));
-        })
-        .catch(error => {
-            console.log(error);
-            if(error.code === "auth/email-already-in-use"){
-                console.log("Email already in use!")
-            }else{
+            .then(result => {
+                console.log(result);
+                const user = result.user;
+                const userInfo = {
+                    userName: user.displayName,
+                    userEmail: user.email,
+                    dateCreated: new Date()
+                }
+                fetch('http://localhost:3000/users', {
+                    method: 'POST',
+                    headers: {
+                        'content-type': 'application/json',
+                    },
+                    body: JSON.stringify(userInfo)
+                }).then(res => res.json()).then(data => {
+                    console.log("Data after adding to DB: ", data);
+                    if(data.inserted === "false"){
+                        console.log("User Already Exists!")
+                    }else{
+                        console.log("User inserted to DB");
+                    }
+                    navigate('/');
+                });
+            })
+            .catch(error => {
                 console.log(error);
-            }
-        })
+                if (error.code === "auth/email-already-in-use") {
+                    console.log("Email already in use!")
+                } else {
+                    console.log(error);
+                }
+            })
     }
     return (
         <div className="hero bg-base-200 min-h-screen">
