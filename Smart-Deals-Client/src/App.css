@@ -12,3 +12,7 @@
 .general-gradient-l2r{
     background: linear-gradient(90deg, #632ee3 0%, #9f62f2 100%);
 }
+.home-background{
+    background: #FFE6FD;
+    background: linear-gradient(90deg, #FFE6FD, #E0F8F5);
+}
