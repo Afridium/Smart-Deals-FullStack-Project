@@ -1,13 +1,29 @@
-import React from 'react';
-import { NavLink } from 'react-router';
+import React, { useContext } from 'react';
+import { Link, NavLink } from 'react-router';
 import '../../App.css'
+import { AuthContext } from '../../context/AuthContext';
 
 const NavBar = () => {
+    const { user, logOut } = useContext(AuthContext);
     const links = <>
         <li><NavLink to={"/"}>Home</NavLink></li>
         <li><NavLink to={"/allProducts"}>All Products</NavLink></li>
-
+        {
+            user && <> <li><NavLink to={"/myproducts"}>My Products</NavLink></li>
+                <li><NavLink to={"/mybids"}>My Bids</NavLink></li>
+            </>
+        }
     </>
+
+    const handleSignOut = () => {
+        logOut()
+            .then(result => {
+                console.log(result)
+            })
+            .catch(error => {
+                console.log(error);
+            })
+    }
 
     return (
         <div className="navbar bg-base-100 shadow-sm">
@@ -22,8 +38,13 @@ const NavBar = () => {
                         {
                             links
                         }
-                        <li><NavLink to={"/login"}>Login</NavLink></li>
-                        <li><NavLink to={"/register"}>Register</NavLink></li>
+                        <li>
+                            {
+                                user ? <li onClick={handleSignOut}>Log Out</li> : <> <li><NavLink to={"/login"}>Login</NavLink></li>
+                                    <li><NavLink to={"/register"}>Register</NavLink></li></>
+                            }
+                        </li>
+
                     </ul>
                 </div>
                 <a className="btn btn-ghost text-3xl font-bold">Smart<span className='title-gradient-t2b'>Deals</span></a>
@@ -35,10 +56,16 @@ const NavBar = () => {
                     }
                 </ul>
             </div>
-            <div className="navbar-end hidden md:block text-right">
-                <a className='btn title-gradient-t2b border-0'>Login</a>
-                <a className="btn general-gradient-l2r text-white">Register</a>
-            </div>
+            {
+                user ? <div className="navbar-end hidden lg:flex gap-2">
+                    <p>{user.email}</p>
+                    <button onClick={handleSignOut} className="btn general-gradient-l2r text-white">Log Out</button>
+                </div> : <div className="navbar-end hidden lg:flex gap-2">
+                    <Link to={"/login"} className='btn title-gradient-t2b border-0'>Login</Link>
+                    <Link to={"/register"} className="btn general-gradient-l2r text-white">Register</Link>
+                </div>
+            }
+
         </div>
     );
 };

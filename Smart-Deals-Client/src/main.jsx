@@ -8,6 +8,11 @@ import RootLayout from './layouts/RootLayout.jsx';
 import Home from './components/Home/Home.jsx';
 import AllProducts from './components/AllProducts/AllProducts.jsx';
 import AuthProvider from './context/AuthProvider.jsx';
+import Register from './components/Register/Register.jsx';
+import Login from './components/Login/Login.jsx';
+import MyProducts from './components/MyProducts/MyProducts.jsx';
+import MyBids from './components/MyBids/MyBids.jsx';
+import PrivateRoute from './components/PrivateRoute/PrivateRoute.jsx';
 
 const router = createBrowserRouter([
   {
@@ -22,6 +27,22 @@ const router = createBrowserRouter([
         path: "allProducts",
         Component: AllProducts
       },
+      {
+        path:"register",
+        Component: Register
+      },
+      {
+        path: "login",
+        Component: Login
+      },
+      {
+        path: "myProducts",
+        element:<PrivateRoute><MyProducts></MyProducts></PrivateRoute>
+      },
+      {
+        path: "myBids",
+        element: <PrivateRoute><MyBids></MyBids></PrivateRoute>
+      }
     ]
   },
 ]);

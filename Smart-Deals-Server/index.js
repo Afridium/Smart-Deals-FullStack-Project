@@ -25,7 +25,9 @@ async function run() {
     const db = client.db('smart_deals_db');
     const productCollection = db.collection('products');
     const bidsCollection = db.collection('bids');
+    const usersCollection = db.collection('users');
 
+    //Product Related API
     app.get('/products', async (req, res) => {
       const email = req.query.mail;
       const query = {};
@@ -106,6 +108,28 @@ async function run() {
       const result = await bidsCollection.updateOne(query, updateDoc);
       res.send(result);
     })
+
+    //Users related API
+
+    app.post('/users', async(req, res) => {
+      const newUser = req.body;
+      const result = await usersCollection.insertOne(newUser);
+      res.send(result);
+    })
+
+    app.get('/users', async(req, res)=>{
+      const cursor = usersCollection.find();
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.get('/users/:id', async(req, res) => {
+      const stringID = req.params.id;
+      const query = {_id: new ObjectId(stringID)};
+      const result = await usersCollection.findOne(query);
+      res.send(result);
+    })
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
