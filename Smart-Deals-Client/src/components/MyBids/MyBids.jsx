@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { AuthContext } from '../../context/AuthContext';
 import { Link, useLoaderData } from 'react-router';
-
+import crywojak from '../../assets/crywojak.jpg'
+import Swal from 'sweetalert2';
 const MyBids = () => {
 
     const { user } = useContext(AuthContext);
@@ -24,52 +25,67 @@ const MyBids = () => {
         fetch(`http://localhost:3000/bids/${bidId}`, {
             method: 'DELETE'
         })
-        .then(res => res.json())
-        .then(data => {
-            console.log("Data after deletion: ", data);
-        })
+            .then(res => res.json())
+            .then(data => {
+                console.log("Data after deletion: ", data);
+                if (data.acknowledged === true) {
+                    Swal.fire({
+                        title: "Guess you've changed your mind",
+                        text: "Bid Deleted",
+                        imageUrl: crywojak,
+                        imageWidth: 200,
+                        imageHeight: 200,
+                        imageAlt: "Custom image"
+                    });
+
+                    const updateBids = myBids.filter(bids => bids._id != bidId);
+                    setMyBids(updateBids);
+                    const updateProducts = myBidsProducts.filter(product => updateBids.find(bids => bids.product === product._id) );
+                    setMyBidsProducts(updateProducts);
+                }
+                })
     }
-    console.log(myBids)
-    return (
-        <div>
-            <h3 className='font-bold text-3xl text-center my-4.5'>My Bids: {myBids.length}</h3>
-            <div className="overflow-x-auto my-6">
-                <table className="table">
-                    {/* head */}
-                    <thead>
-                        <tr>
-                            <th></th>
-                            <th>Name</th>
-                            <th>Location</th>
-                            <th>Seller Contact</th>
-                            <th>Seller Name</th>
-                            <th>My Bid Price</th>
-                            <th>STatus</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                       {
-                        myBidsProducts.map((product, index) =>{
+
+return (
+    <div>
+        <h3 className='font-bold text-3xl text-center my-4.5'>My Bids: {myBids.length}</h3>
+        <div className="overflow-x-auto my-6">
+            <table className="table">
+                {/* head */}
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Name</th>
+                        <th>Location</th>
+                        <th>Seller Contact</th>
+                        <th>Seller Name</th>
+                        <th>My Bid Price</th>
+                        <th>STatus</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {
+                        myBidsProducts.map((product, index) => {
                             const matchedProd = myBids.find(bid => bid.product === product._id);
-                            return <tr>
-                            <th>{index+1}</th>
-                            <td className='underline'><Link to={`/products/${product._id}`}>{product.title}</Link></td>
-                            <td>{product.location}</td>
-                            <td>{product.seller_contact}</td>
-                            <td>{product.seller_name}</td>
-                            <td>{matchedProd.bid_price}</td>
-                            <td>{product.status}</td>
-                            <td><button onClick={()=>handleBidDelete(matchedProd._id)} className='btn'>Delete Bid</button></td>
-                        </tr>
+                            return <tr key={product._id}>
+                                <th>{index + 1}</th>
+                                <td className='underline'><Link to={`/products/${product._id}`}>{product.title}</Link></td>
+                                <td>{product.location}</td>
+                                <td>{product.seller_contact}</td>
+                                <td>{product.seller_name}</td>
+                                <td>{matchedProd.bid_price}</td>
+                                <td>{product.status}</td>
+                                <td><button onClick={() => handleBidDelete(matchedProd._id)} className='btn'>Delete Bid</button></td>
+                            </tr>
                         }
                         )
-                       }
-                    </tbody>
-                </table>
-            </div>
+                    }
+                </tbody>
+            </table>
         </div>
-    );
+    </div>
+);
 };
 
 export default MyBids;
