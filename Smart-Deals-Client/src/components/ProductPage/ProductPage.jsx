@@ -1,7 +1,9 @@
 import React, { useContext, useRef } from 'react';
 import { Link, useLoaderData, useNavigate } from 'react-router';
 import { AuthContext } from '../../context/AuthContext';
-
+import Swal from 'sweetalert2';
+import bidOK from '../../assets/thuup.jpg'
+import BidsForProduct from './BidsForProduct';
 const ProductPage = () => {
     const product = useLoaderData();
     const { _id, title, description, category, price_min, price_max, created_at, image, condition, usage, seller_name, seller_image, location, email, status } = product;
@@ -36,11 +38,25 @@ const ProductPage = () => {
             },
             body: JSON.stringify(newBid)
         })
-        .then(res => res.json())
-        .then(data => console.log("After Placing Bid:", data))
+            .then(res => res.json())
+            .then(data => {
+                if(data.insertedId){
+                    bidModal.current.close();
+                    Swal.fire({
+                    title: "Lets Buy This!",
+                    text: "Bid submitted",
+                    imageUrl: bidOK,
+                    imageWidth: 200,
+                    imageHeight: 200,
+                    imageAlt: "Custom image"
+                });
+                }
+            })
     }
     return (
+        <div className='bg-[#f4f5f8]'>
         <div className="min-h-screen bg-[#f4f5f8] p-4 md:p-8 font-sans flex justify-center text-slate-800">
+            {/* Product Details */}
             <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-8">
 
                 {/* Left Column */}
@@ -162,7 +178,6 @@ const ProductPage = () => {
                     }
 
                     {/* Modal */}
-
                     <dialog ref={bidModal} className="modal modal-bottom sm:modal-middle">
                         <div className="modal-box">
                             <h3 className="font-bold text-lg text-center">Offer a Price</h3>
@@ -191,8 +206,16 @@ const ProductPage = () => {
 
                 </div>
             </div>
-
         </div>
+        {/* My Bids Table */}
+            
+            <div className='mt-3.5 mb-4 w-[80%] mx-auto bg-[#f4f5f8]'>
+                {
+                    user?.email == email ? <BidsForProduct prodID={_id}></BidsForProduct> : <div></div>
+                }
+            </div>
+        </div>
+        
     );
 };
 

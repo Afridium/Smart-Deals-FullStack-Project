@@ -4,9 +4,16 @@ import left from '../../assets/assets/bg-hero-left.png'
 import right from '../../assets/assets/bg-hero-right.png'
 import { IoSearch } from "react-icons/io5";
 import LatestProducts from '../LatestProducts/LatestProducts';
+
+const LatestProductsPromise = fetch('http://localhost:3000/latest-products')
+  .then(res => {
+    if (!res.ok) throw new Error(`Server error: ${res.status}`); // ✅ catch non-JSON responses early
+    return res.json();
+  });
+  
 const Home = () => {
 
-    const LatestProductsPromise = fetch('http://localhost:3000/latest-products').then(res => res.json());
+    
     return (
         <div className='w-full'>
         <div className='h-[70vh] home-background text-center px-6 lg:px-1.5 py-10 relative flex flex-col justify-center items-center'>
