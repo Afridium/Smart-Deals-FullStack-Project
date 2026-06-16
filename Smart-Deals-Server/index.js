@@ -4,8 +4,42 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 const app = express();
+
+//Firebase ADMIN
+var admin = require("firebase-admin");
+
+var serviceAccount = require("./smart-deals-project-b8ae4-firebase-adminsdk-fbsvc-c7ee654a70.json");
+const { getAuth } = require('firebase-admin/auth');
+
+admin.initializeApp({
+  credential: admin.cert(serviceAccount)
+});
+
+//middlewares
 app.use(cors());
 app.use(express.json());
+const logger = (req, res, next) => {
+  next();
+}
+const verifyFireBaseToken = async (req, res, next) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send({ message: "Unauthorized Access, Access Denied!" });
+  }
+  const token = req.headers.authorization.split(' ')[1];
+  if (!token) {
+    return res.status(401).send({ message: "Token Not Found, Access Denied!" });
+  }
+  try {
+    const userInfo = await getAuth().verifyIdToken(token);
+    //req.decoded = userInfo; // see below
+    req.token_email = userInfo.email;
+    console.log(userInfo);
+    next();
+  } catch (err) {
+    console.error(err); // see below
+    return res.status(401).send({ message: "Unauthorized Access!" });
+  }
+};
 const uri = `mongodb+srv://${process.env.MONGODBUSER}:${process.env.MONGODBPASS}@cluster0.ge664mc.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -26,11 +60,20 @@ async function run() {
     const bidsCollection = db.collection('bids');
     const usersCollection = db.collection('users');
 
+    //JWT related API
+    app.post('/getToken', async(req, res) => {
+      const jwt = require('jsonwebtoken');
+      const token = jwt.sign({ email: 'abs' }, 'secret', {expiresIn: '1h'});
+      res.send({token: token});
+    })
     //Product Related API
-    app.get('/products', async (req, res) => {
+    app.get('/products',verifyFireBaseToken, async (req, res) => {
       const email = req.query.mail;
       const query = {};
       if (email) {
+        if(email != req.token_email){
+          return req.status(403).send({message: "Forbidden Acces! Shoo Shoo"});
+        }
         query.email = email;
       }
       const cursor = productCollection.find(query);
@@ -80,16 +123,21 @@ async function run() {
     })
 
     //bids related API
-    app.get('/bids', async (req, res) => {
+    app.get('/bids', logger, verifyFireBaseToken, async (req, res) => {
+      
       const email = req.query.mail;
       const query = {};
       if (email) {
+        if(email != req.token_email){
+          return res.status(403).send({messsage: "Forbidden Access Detected! Shoo Shoo"});
+        }
         query.buyer_email = email;
       }
       const cursor = bidsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     })
+
     app.get('/products/bids/:id', async (req, res) => {
       const stringID = req.params.id;
       const query = { product: stringID }
@@ -103,13 +151,13 @@ async function run() {
     })
     app.delete('/bids/:id', async (req, res) => {
       const stringID = req.params.id;
-      const query = { _id: stringID };
+      const query = { _id: new ObjectId(stringID) };
       const result = await bidsCollection.deleteOne(query);
       res.send(result);
     })
     app.patch('/bids/:id', async (req, res) => {
       const stringID = req.params.id;
-      const query = { _id: stringID };
+      const query = { _id: new ObjectId(stringID) };
       const doc = req.body;
       const updateDoc = {
         $set: doc
