@@ -39,6 +39,19 @@ const verifyFireBaseToken = async (req, res, next) => {
     return res.status(401).send({ message: "Unauthorized Access!" });
   }
 };
+
+const verifyJWTToken = (req, res, next) => {
+  const authToken = req.headers.authorization;
+  if(!authToken){
+    return res.status(401).send({message: "Unauthorized Access Detected, Calling the FBI CIA KGB"})
+  }
+  const token = authToken.split(' ')[1];
+  if(!token){
+    return res.status(401).send({message: "Woah! Woah! Woah! Buddy hold on there, Unauthorized!"});
+  }
+
+  next();
+}
 const uri = `mongodb+srv://${process.env.MONGODBUSER}:${process.env.MONGODBPASS}@cluster0.ge664mc.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -121,20 +134,35 @@ async function run() {
     })
 
     //bids related API
-    app.get('/bids', logger, verifyFireBaseToken, async (req, res) => {
-      
-      const email = req.query.mail;
+
+    //bids with jwt token verify
+    app.get('/bids', verifyJWTToken, async(req,res)=>{
+      // console.log(req.headers.authorization);
+      const email = req.query.email;
       const query = {};
-      if (email) {
-        if(email != req.token_email){
-          return res.status(403).send({messsage: "Forbidden Access Detected! Shoo Shoo"});
-        }
+      if(email){
         query.buyer_email = email;
       }
       const cursor = bidsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
     })
+
+    //bids with firebase token verify
+    // app.get('/bids', logger, verifyFireBaseToken, async (req, res) => {
+      
+    //   const email = req.query.mail;
+    //   const query = {};
+    //   if (email) {
+    //     if(email != req.token_email){
+    //       return res.status(403).send({messsage: "Forbidden Access Detected! Shoo Shoo"});
+    //     }
+    //     query.buyer_email = email;
+    //   }
+    //   const cursor = bidsCollection.find(query);
+    //   const result = await cursor.toArray();
+    //   res.send(result);
+    // })
 
     app.get('/products/bids/:id', async (req, res) => {
       const stringID = req.params.id;
