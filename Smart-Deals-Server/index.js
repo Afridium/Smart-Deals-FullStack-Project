@@ -33,7 +33,6 @@ const verifyFireBaseToken = async (req, res, next) => {
     const userInfo = await getAuth().verifyIdToken(token);
     //req.decoded = userInfo; // see below
     req.token_email = userInfo.email;
-    console.log(userInfo);
     next();
   } catch (err) {
     console.error(err); // see below
@@ -59,21 +58,20 @@ async function run() {
     const productCollection = db.collection('products');
     const bidsCollection = db.collection('bids');
     const usersCollection = db.collection('users');
-
+    console.log(process.env.JWTSECRETKEY)
     //JWT related API
-    app.post('/getToken', async(req, res) => {
+    app.post('/getToken', (req, res) => {
+      const loggedUser = req.body;
       const jwt = require('jsonwebtoken');
-      const token = jwt.sign({ email: 'abs' }, 'secret', {expiresIn: '1h'});
+      const token = jwt.sign(loggedUser, process.env.JWTSECRETKEY, {expiresIn: '1h'});
       res.send({token: token});
     })
     //Product Related API
-    app.get('/products',verifyFireBaseToken, async (req, res) => {
+    app.get('/products', async (req, res) => {
       const email = req.query.mail;
       const query = {};
       if (email) {
-        if(email != req.token_email){
-          return req.status(403).send({message: "Forbidden Acces! Shoo Shoo"});
-        }
+       
         query.email = email;
       }
       const cursor = productCollection.find(query);
