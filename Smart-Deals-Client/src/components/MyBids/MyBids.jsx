@@ -12,19 +12,35 @@ const MyBids = () => {
 
     useEffect(() => {
         if (user?.email) {
-            fetch(`http://localhost:3000/bids?mail=${user.email}`, {
+            fetch(`http://localhost:3000/bids?email=${user.email}`, {
                 headers: {
-                    authorization: `Bearer ${user.accessToken}`
+                    authorization: `Bearer ${localStorage.getItem('Token')}`
                 }
             })
                 .then(res => res.json())
                 .then(data => {
+                    console.log(data);
                     setMyBids(data);
                     const matched = products.filter(product => data.find(data => product._id == data.product));
                     setMyBidsProducts(matched);
                 })
         }
     }, [user?.email])
+    // useEffect(() => {
+    //     if (user?.email) {
+    //         fetch(`http://localhost:3000/bids?mail=${user.email}`, {
+    //             headers: {
+    //                 authorization: `Bearer ${user.accessToken}`
+    //             }
+    //         })
+    //             .then(res => res.json())
+    //             .then(data => {
+    //                 setMyBids(data);
+    //                 const matched = products.filter(product => data.find(data => product._id == data.product));
+    //                 setMyBidsProducts(matched);
+    //             })
+    //     }
+    // }, [user?.email])
     const handleBidDelete = (bidId) => {
         fetch(`http://localhost:3000/bids/${bidId}`, {
             method: 'DELETE'

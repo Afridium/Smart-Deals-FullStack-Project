@@ -41,7 +41,7 @@ const AuthProvider = ({ children }) => {
             })
             .then(res => res.json())
             .then(data => {
-                console.log("After sending token in the jwt: ", data);
+                localStorage.setItem("Token", data.token);
             })
             }
             setLoading(false);
