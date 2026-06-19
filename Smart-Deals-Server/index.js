@@ -4,13 +4,12 @@ const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 const port = process.env.PORT || 3000;
 const app = express();
+const jwt = require('jsonwebtoken');
 
-//Firebase ADMIN
+//Firebase ADMIN for verification setup
 var admin = require("firebase-admin");
-
 var serviceAccount = require("./smart-deals-project-b8ae4-firebase-adminsdk-fbsvc-c7ee654a70.json");
 const { getAuth } = require('firebase-admin/auth');
-
 admin.initializeApp({
   credential: admin.cert(serviceAccount)
 });
@@ -49,9 +48,15 @@ const verifyJWTToken = (req, res, next) => {
   if(!token){
     return res.status(401).send({message: "Woah! Woah! Woah! Buddy hold on there, Unauthorized!"});
   }
-
-  next();
+  jwt.verify(token, process.env.JWTSECRETKEY, (err, decoded)=>{
+    if(err){
+      return res.status(401).send({message: "Unauthorized Access!"})
+    }
+    req.token_email = decoded.email;
+    next();
+  })
 }
+
 const uri = `mongodb+srv://${process.env.MONGODBUSER}:${process.env.MONGODBPASS}@cluster0.ge664mc.mongodb.net/?appName=Cluster0`;
 
 // Create a MongoClient with a MongoClientOptions object to set the Stable API version
@@ -141,6 +146,9 @@ async function run() {
       const email = req.query.email;
       const query = {};
       if(email){
+        if(email != req.token_email){
+          return res.status(403).send({message: "Forbiden Access"});
+        }
         query.buyer_email = email;
       }
       const cursor = bidsCollection.find(query);
