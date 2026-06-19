@@ -33,17 +33,34 @@ const AuthProvider = ({ children }) => {
         const unSubscribe = onAuthStateChanged(auth, (currentUser) => {
             setUser(currentUser);
             if(currentUser){
-                const loggedUser = {email: currentUser.email};
-            fetch('http://localhost:3000/getToken',{
-                method: 'POST',
-                headers: {'content-type': 'application/json'},
-                body: JSON.stringify(loggedUser)
-            })
-            .then(res => res.json())
-            .then(data => {
-                localStorage.setItem("Token", data.token);
-            })
+                fetch('http://localhost:3000/getToken', {
+                    method: 'POST',
+                    headers:{
+                        'content-type': 'application/json'
+                    },
+                    body: JSON.stringify({email: currentUser.email})
+                })
+                .then(res => res.json())
+                .then(data => {
+                    localStorage.setItem("Token", data.token);
+                })
+            }else{
+                localStorage.removeItem('Token');
             }
+            // if(currentUser){
+            //     const loggedUser = {email: currentUser.email};
+            // fetch('http://localhost:3000/getToken',{
+            //     method: 'POST',
+            //     headers: {'content-type': 'application/json'},
+            //     body: JSON.stringify(loggedUser)
+            // })
+            // .then(res => res.json())
+            // .then(data => {
+            //     localStorage.setItem("Token", data.token);
+            // })
+            // }else{
+            //     localStorage.removeItem('Token');
+            // }
             setLoading(false);
         });
         return () => {
