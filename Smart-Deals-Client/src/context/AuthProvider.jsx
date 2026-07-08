@@ -47,6 +47,7 @@ const AuthProvider = ({ children }) => {
             }else{
                 localStorage.removeItem('Token');
             }
+           
             // if(currentUser){
             //     const loggedUser = {email: currentUser.email};
             // fetch('http://localhost:3000/getToken',{

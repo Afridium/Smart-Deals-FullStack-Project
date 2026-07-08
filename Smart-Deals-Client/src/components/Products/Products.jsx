@@ -4,12 +4,12 @@ import { Link } from 'react-router';
 const Products = ({ product }) => {
     const {_id, title, price_min, price_max, image } = product;
     return (
-        <div className="card bg-base-100 w-full max-w-sm shadow-sm">
+        <div className="card bg-base-100 w-full max-w-sm shadow-sm mb-5">
             <figure className="px-4 pt-4">
                 <img
                     src={image}
                     alt="product"
-                    className="rounded-xl w-full object-cover" />
+                    className="rounded-xl w-full h-56 object-cover" />
             </figure>
             <div className="card-body items-start text-left">
                 <h2 className="text-left font-bold text-[16px]">{title}</h2>
