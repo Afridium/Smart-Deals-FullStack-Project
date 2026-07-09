@@ -62,8 +62,8 @@ const ProductPage = () => {
                 {/* Left Column */}
                 <div className="flex flex-col gap-6">
                     {/* Image Placeholder */}
-                    <div className="w-full bg-[#d1d5db] aspect-[4/3] rounded-lg">
-                        <img className='w-full rounded-lg' src={image} alt="" />
+                    <div className="w-full bg-[#d1d5db] aspect-4/3 rounded-lg">
+                        <img className='w-full h-full rounded-lg' src={image} alt="" />
                     </div>
 
                     {/* Product Description */}
@@ -141,7 +141,7 @@ const ProductPage = () => {
                         <h3 className="text-[1.15rem] font-bold text-[#0f172a] mb-4">Seller Information</h3>
 
                         <div className="flex items-center gap-4 mb-5">
-                            <div className="w-11 h-11 bg-[#cbd5e1] rounded-full flex-shrink-0">
+                            <div className="w-11 h-11 bg-[#cbd5e1] rounded-full shrink-0">
                                 <img src={seller_image} className='w-full rounded-full' alt="" />
                             </div>
                             <div className="flex flex-col justify-center">

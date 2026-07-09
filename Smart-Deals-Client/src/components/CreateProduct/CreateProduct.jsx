@@ -27,7 +27,6 @@ const CreateProduct = () => {
   console.log(displayName, email, photoURL);
   const AxiosInstance = useAxiosSecure();
 
-
   const handleSubmit = (e) => {
     e.preventDefault();
     const formData = new FormData(e.target);
@@ -52,13 +51,8 @@ const CreateProduct = () => {
     };
 
     AxiosInstance.post('/products', product)
-      .then(data => console.log("data.data"));
-    // TODO: POST `product` to your backend, e.g.
-    // fetch("/api/products", {
-    //   method: "POST",
-    //   headers: { "Content-Type": "application/json" },
-    //   body: JSON.stringify(product),
-    // });
+      .then(data => console.log("Data after Insertion: ", data.data));
+   
 
     e.target.reset();
   };
