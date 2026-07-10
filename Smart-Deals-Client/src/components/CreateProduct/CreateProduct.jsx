@@ -24,7 +24,6 @@ const CreateProduct = () => {
     navigate('/login')
   }
   const {displayName, email, photoURL} = user;
-  console.log(displayName, email, photoURL);
   const AxiosInstance = useAxiosSecure();
 
   const handleSubmit = (e) => {

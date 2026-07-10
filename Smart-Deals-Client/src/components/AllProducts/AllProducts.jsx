@@ -12,9 +12,6 @@ const AllProducts = () => {
                 setAllProducts(data.data);
             })
     }, [])
-
-
-    console.log(allProducts);
     return (
         <div className='w-full'>
             <h3 className='text-center font-bold text-4xl my-6'>All Products Page</h3>

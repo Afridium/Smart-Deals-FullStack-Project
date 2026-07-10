@@ -19,7 +19,6 @@ const MyBids = () => {
             })
                 .then(res => res.json())
                 .then(data => {
-                    console.log(data);
                     setMyBids(data);
                     const matched = products.filter(product => data.find(data => product._id == data.product));
                     setMyBidsProducts(matched);
