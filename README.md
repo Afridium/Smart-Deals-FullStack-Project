@@ -2,6 +2,8 @@
 
 Smart Deals is a full-stack MERN web application where users can list products, browse listings, and place bids on items they're interested in. Authentication is handled with Firebase, and protected routes are secured using JWT tokens verified against Firebase on the backend.
 
+**Live Link** - [Live Review Link](https://smart-deals-client-6c54r.web.app/)
+
 ## Features
 
 - 🔐 **Authentication** — Firebase Authentication for user sign up / login
