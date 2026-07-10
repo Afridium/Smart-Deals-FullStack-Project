@@ -20,9 +20,10 @@ app.use(express.json());
 const logger = (req, res, next) => {
   next();
 }
+
 const verifyFireBaseToken = async (req, res, next) => {
   if (!req.headers.authorization) {
-    return res.status(401).send({ message: "Unauthorized Access, Access Denied!" });
+    return next();
   }
   const token = req.headers.authorization.split(' ')[1];
   if (!token) {
@@ -31,6 +32,7 @@ const verifyFireBaseToken = async (req, res, next) => {
   try {
     const userInfo = await getAuth().verifyIdToken(token);
     //req.decoded = userInfo; // see below
+    console.log("UserInfo inside toke verification: ", userInfo);
     req.token_email = userInfo.email;
     next();
   } catch (err) {
@@ -39,18 +41,36 @@ const verifyFireBaseToken = async (req, res, next) => {
   }
 };
 
+// const verifyJWTToken = (req, res, next) => {
+//   const authToken = req.headers.authorization;
+//   if(!authToken){
+//     return res.status(401).send({message: "Unauthorized Access Detected, Calling the FBI CIA KGB"})
+//   }
+//   const token = authToken.split(' ')[1];
+//   if(!token){
+//     return res.status(401).send({message: "Woah! Woah! Woah! Buddy hold on there, Unauthorized!"});
+//   }
+//   jwt.verify(token, process.env.JWTSECRETKEY, (err, decoded)=>{
+//     if(err){
+//       return res.status(401).send({message: "Unauthorized Access!"})
+//     }
+//     req.token_email = decoded.email;
+//     next();
+//   })
+// }
+
 const verifyJWTToken = (req, res, next) => {
   const authToken = req.headers.authorization;
   if(!authToken){
-    return res.status(401).send({message: "Unauthorized Access Detected, Calling the FBI CIA KGB"})
+    return res.status(401).send({message: "Forbidden Access, There is not even a token there!"})
   }
   const token = authToken.split(' ')[1];
   if(!token){
-    return res.status(401).send({message: "Woah! Woah! Woah! Buddy hold on there, Unauthorized!"});
+    return res.status(401).send({message: "Unauthorized Access!"})
   }
   jwt.verify(token, process.env.JWTSECRETKEY, (err, decoded)=>{
     if(err){
-      return res.status(401).send({message: "Unauthorized Access!"})
+      return res.status(401).send({message: "Verification Unsuccessful! Access Denied"});
     }
     req.token_email = decoded.email;
     next();
@@ -76,20 +96,24 @@ async function run() {
     const productCollection = db.collection('products');
     const bidsCollection = db.collection('bids');
     const usersCollection = db.collection('users');
-    console.log(process.env.JWTSECRETKEY)
+    
+
     //JWT related API
-    app.post('/getToken', (req, res) => {
+    app.post('/getToken', (req, res)=>{
       const loggedUser = req.body;
       const jwt = require('jsonwebtoken');
       const token = jwt.sign(loggedUser, process.env.JWTSECRETKEY, {expiresIn: '1h'});
       res.send({token: token});
     })
+
     //Product Related API
-    app.get('/products', async (req, res) => {
-      const email = req.query.mail;
+    app.get('/products', verifyFireBaseToken, async (req, res) => {
+      const email = req.query.email;
       const query = {};
       if (email) {
-       
+        if(email != req.token_email){
+          return res.status(401).send({message:"Forbidden Access"});
+        }
         query.email = email;
       }
       const cursor = productCollection.find(query);
@@ -114,7 +138,8 @@ async function run() {
       res.send(result);
     });
 
-    app.post('/products', async (req, res) => {
+    app.post('/products', verifyFireBaseToken, async (req, res) => {
+      console.log("headers in the post: ", req.headers);
       const newProduct = req.body;
       const result = await productCollection.insertOne(newProduct);
       res.send(result);
@@ -147,13 +172,14 @@ async function run() {
       const query = {};
       if(email){
         if(email != req.token_email){
-          return res.status(403).send({message: "Forbiden Access"});
+          return res.status(403).send({message: "Forbidded Access"});
         }
         query.buyer_email = email;
       }
       const cursor = bidsCollection.find(query);
       const result = await cursor.toArray();
       res.send(result);
+      
     })
 
     //bids with firebase token verify
