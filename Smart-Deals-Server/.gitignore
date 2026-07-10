@@ -1,3 +1,5 @@
 node_modules
 .env
 smart-deals-project-b8ae4-firebase-adminsdk-fbsvc-c7ee654a70.json
+service-key-base64.txt
+encode.js

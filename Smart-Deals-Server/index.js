@@ -8,7 +8,10 @@ const jwt = require('jsonwebtoken');
 
 //Firebase ADMIN for verification setup
 var admin = require("firebase-admin");
-var serviceAccount = require("./smart-deals-project-b8ae4-firebase-adminsdk-fbsvc-c7ee654a70.json");
+// index.js
+const decoded = Buffer.from(process.env.FB_SERVICE_KEY, "base64").toString("utf8");
+const serviceAccount = JSON.parse(decoded);
+// var serviceAccount = require("./smart-deals-project-b8ae4-firebase-adminsdk-fbsvc-c7ee654a70.json");
 const { getAuth } = require('firebase-admin/auth');
 admin.initializeApp({
   credential: admin.cert(serviceAccount)
@@ -251,8 +254,8 @@ async function run() {
       res.send(result);
     })
 
-    await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // await client.db("admin").command({ ping: 1 });
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
 
 
   } finally {
